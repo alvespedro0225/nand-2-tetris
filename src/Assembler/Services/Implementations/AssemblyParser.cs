@@ -1,3 +1,5 @@
+using Application.Services;
+
 namespace Assembler.Services.Implementations;
 
 public sealed class Parser : IParser
