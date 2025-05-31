@@ -111,7 +111,4 @@ public sealed class Translator : ITranslator
 
         return computationBinary;
     }
-
-
-
 }

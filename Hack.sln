@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hack", "Hack\Hack.csproj", "{AC5557FA-EAA4-4BD2-A5A4-465A44D3F1D1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hack", "src\Hack\Hack.csproj", "{AC5557FA-EAA4-4BD2-A5A4-465A44D3F1D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembler", "Assembler\Assembler.csproj", "{8A1071D4-32D5-43CE-AB4F-0EDC4B627CAF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembler", "src\Assembler\Assembler.csproj", "{8A1071D4-32D5-43CE-AB4F-0EDC4B627CAF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
