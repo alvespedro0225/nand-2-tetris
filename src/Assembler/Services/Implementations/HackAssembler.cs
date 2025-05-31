@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Assembler.Services.Implementations;
+﻿namespace Assembler.Services.Implementations;
 
 public sealed class HackAssembler(
     IParser parser,
@@ -33,8 +31,8 @@ public sealed class HackAssembler(
     private async Task SecondPass(string source)
     {
         using var reader = File.OpenText(source);
-        var stringOutput = new StringBuilder();
- 
+        // var stringOutput = new StringBuilder();
+        List<byte> output = [];
         while (!reader.EndOfStream)
         {
             
@@ -57,12 +55,14 @@ public sealed class HackAssembler(
             }
 
             var parsedInstruction = parser.ParseAssembly(instruction);
-            stringOutput.AppendLine(translator.TranslateParsedAssembly(parsedInstruction));
+            // stringOutput.AppendLine(translator.TranslateParsedAssembly(parsedInstruction));
+            output.AddRange(translator.TranslateParsedAssembly(parsedInstruction));
         }
 
         var destinationFile = Path.ChangeExtension(source, ".hack");
         await using var writer = File.OpenWrite(destinationFile);
-        await writer.WriteAsync(Encoding.UTF8.GetBytes(stringOutput.ToString()));
+        // await writer.WriteAsync(Encoding.UTF8.GetBytes(stringOutput.ToString()));
+        await writer.WriteAsync(output.ToArray());
         Console.WriteLine($"{destinationFile}");
     }
 

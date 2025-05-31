@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 var builder = CoconaApp.CreateBuilder();
 builder.Services
     .AddScoped<IParser, Parser>()
-    .AddScoped<ITranslator, Translator>()
+    .AddScoped<ITranslator, TextTranslator>()
     .AddScoped<ISymbolTable, SymbolTable>()
     .AddSingleton<IHackAssembler, HackAssembler>();
 

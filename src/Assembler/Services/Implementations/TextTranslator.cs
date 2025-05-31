@@ -2,7 +2,7 @@ using System.Text;
 
 namespace Assembler.Services.Implementations;
 
-public sealed class Translator : ITranslator
+public sealed class TextTranslator : ITranslator
 {
     private readonly Dictionary<string, string> _computationCodes = new()
     {
@@ -47,21 +47,20 @@ public sealed class Translator : ITranslator
         { "JLE", "110" },
         { "JMP", "111" } 
     };
-    public string TranslateParsedAssembly(char[][] assembly)
+    public byte[] TranslateParsedAssembly(char[][] assembly)
     {
         return assembly.Length switch
         {
-            1 => TranslateInstructionA(assembly[0]),
-            3 => TranslateInstructionC(assembly[0], assembly[1], assembly[2]),
+            1 => Encoding.UTF8.GetBytes(TranslateInstructionA(assembly[0])),
+            3 => Encoding.UTF8.GetBytes(TranslateInstructionC(assembly[0], assembly[1], assembly[2])),
             _ => throw new Exception("Invalid assembly format")
         };
     }
-
-
+    
     private string TranslateInstructionA(char[] assembly)
     {
         if (int.TryParse(assembly, out int instructionNumber))
-            return $"{instructionNumber:b16}";
+            return $"{instructionNumber:b16}\n";
 
         throw new Exception("Invalid A instruction");
     }
@@ -72,6 +71,7 @@ public sealed class Translator : ITranslator
         builder.Append(TranslateComputation(new string(computation)));
         builder.Append(TranslateDestination(destination));
         builder.Append(TranslateJump(new string(jump)));
+        builder.Append("\n");
         return builder.ToString();
     }
 
