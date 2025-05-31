@@ -1,15 +1,18 @@
-﻿namespace Assembler.Services.Implementations;
+﻿using Application.Services.Common;
+
+namespace Application.Services.Assembler.Implementations;
 
 public sealed class HackAssembler(
     IParser parser,
     ITranslator translator,
-    ISymbolTable symbolTable) : IHackAssembler
+    ISymbolTable symbolTable,
+    IFileManager fileManager) : IAssembler
 {
-    private int _variableRegisterCount = 16;
+    private int _variableRegisterCount = 16; // address of the first register used for storing variable values
     
     private async Task FirstPass(string source)
     {
-        using var reader = File.OpenText(source);
+        using var reader = fileManager.ReadFile(source);
         var lineCounter = 0;
         while (!reader.EndOfStream)
         {
@@ -20,6 +23,7 @@ public sealed class HackAssembler(
 
             if (line!.StartsWith('('))
             {
+                // adds the symbol without () to the table
                 symbolTable.AddSymbol(line[1..^1], lineCounter);
                 continue;
             }
@@ -30,14 +34,13 @@ public sealed class HackAssembler(
 
     private async Task SecondPass(string source)
     {
-        using var reader = File.OpenText(source);
-        // var stringOutput = new StringBuilder();
+        using var reader = fileManager.ReadFile(source);
         List<byte> output = [];
         while (!reader.EndOfStream)
         {
-            
             var line = await reader.ReadLineAsync();
             line = line?.Trim();
+            
             if (IsInvalidLine(line) || line!.StartsWith('(')) // need to skip definitions on second pass
                 continue;
 
@@ -50,20 +53,15 @@ public sealed class HackAssembler(
                     symbolTable.AddSymbol(line[1..], _variableRegisterCount);
                     symbolValue = _variableRegisterCount++;
                 }
-
+                
                 instruction = $"@{symbolValue}";
             }
 
             var parsedInstruction = parser.ParseAssembly(instruction);
-            // stringOutput.AppendLine(translator.TranslateParsedAssembly(parsedInstruction));
             output.AddRange(translator.TranslateParsedAssembly(parsedInstruction));
         }
 
-        var destinationFile = Path.ChangeExtension(source, ".hack");
-        await using var writer = File.OpenWrite(destinationFile);
-        // await writer.WriteAsync(Encoding.UTF8.GetBytes(stringOutput.ToString()));
-        await writer.WriteAsync(output.ToArray());
-        Console.WriteLine($"{destinationFile}");
+        await fileManager.WriteToFileAsync(source, output.ToArray());
     }
 
     private static bool IsSymbol(string line)

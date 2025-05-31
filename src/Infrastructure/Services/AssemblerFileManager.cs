@@ -1,10 +1,12 @@
 using System.Text;
 using Application.Services;
+using Application.Services.Common;
 
 namespace Infrastructure.Services;
 
 public sealed class AssemblerFileManager : IFileManager
 {
+    private bool isLittleEndian = BitConverter.IsLittleEndian;
     public StreamReader ReadFile(string path)
     {
         path = ReplaceTilde(path);

@@ -1,18 +1,21 @@
-using Assembler.Services;
-using Assembler.Services.Implementations;
+using Application.Services.Assembler;
+using Application.Services.Assembler.Implementations;
+using Application.Services.Common;
 using Cocona;
+using Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 var builder = CoconaApp.CreateBuilder();
 builder.Services
-    .AddScoped<IParser, Parser>()
-    .AddScoped<ITranslator, TextTranslator>()
+    .AddScoped<IParser, AssemblyParser>()
+    .AddScoped<ITranslator, AssemblyTranslatorBinary>()
     .AddScoped<ISymbolTable, SymbolTable>()
-    .AddSingleton<IHackAssembler, HackAssembler>();
+    .AddScoped<IFileManager, AssemblerFileManager>()
+    .AddScoped<IAssembler, HackAssembler>();
 
 var app = builder.Build();
-app.AddCommand(async ([Argument] string path, IHackAssembler hackAssembler) =>
+app.AddCommand(async ([Argument] string path, IAssembler assembler) =>
 {
-   await hackAssembler.Assemble(path);
+   await assembler.Assemble(path);
 });
 app.Run();

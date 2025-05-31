@@ -1,4 +1,4 @@
-namespace Assembler.Services.Implementations;
+namespace Application.Services.Assembler.Implementations;
 
 public sealed class SymbolTable : ISymbolTable
 {

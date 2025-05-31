@@ -1,8 +1,10 @@
 using System.Text;
+using Application.Services.Common;
+using Domain.Exceptions;
 
-namespace Assembler.Services.Implementations;
+namespace Application.Services.Assembler.Implementations;
 
-public sealed class TextTranslator : ITranslator
+public sealed class AssemblyTranslatorText : ITranslator
 {
     private readonly Dictionary<string, string> _computationCodes = new()
     {
@@ -47,22 +49,33 @@ public sealed class TextTranslator : ITranslator
         { "JLE", "110" },
         { "JMP", "111" } 
     };
-    public byte[] TranslateParsedAssembly(char[][] assembly)
+    /// <summary>
+    /// Translate given assembly into its equivalent string's bytes.
+    /// </summary>
+    /// <param name="parsedAssembly">An array containing the subsections of the instruction,</param>
+    /// <returns>
+    /// A byte array of length 2.
+    /// </returns>
+    /// <exception cref="ArgumentException">Thrown if <c>parsedAssembly</c> does not have length equal to 1 or 3.</exception>
+    public byte[] TranslateParsedAssembly(char[][] parsedAssembly)
     {
-        return assembly.Length switch
+        return parsedAssembly.Length switch
         {
-            1 => Encoding.UTF8.GetBytes(TranslateInstructionA(assembly[0])),
-            3 => Encoding.UTF8.GetBytes(TranslateInstructionC(assembly[0], assembly[1], assembly[2])),
-            _ => throw new Exception("Invalid assembly format")
+            1 => Encoding.UTF8.GetBytes(TranslateInstructionA(parsedAssembly[0])),
+            3 => Encoding.UTF8.GetBytes(TranslateInstructionC(parsedAssembly[0], parsedAssembly[1], parsedAssembly[2])),
+            _ => throw new ArgumentException($"Invalid parsing. Array of size {parsedAssembly.Length} is not a valid size.")
         };
     }
     
-    private string TranslateInstructionA(char[] assembly)
+    private static string TranslateInstructionA(char[] addressString)
     {
-        if (int.TryParse(assembly, out int instructionNumber))
-            return $"{instructionNumber:b16}\n";
+        if (!int.TryParse(addressString, out int addressNumber))
+            throw new TranslationException("Instruction A must contain a number");
 
-        throw new Exception("Invalid A instruction");
+        if (addressNumber is > 0x6000 or < 0)
+            throw new ArgumentException($"Instruction A must contain a number from 0 to {0x6000}");
+        
+        return $"{addressNumber:b16}\n";
     }
 
     private string TranslateInstructionC(char[] computation, char[] destination, char[] jump)
@@ -71,12 +84,23 @@ public sealed class TextTranslator : ITranslator
         builder.Append(TranslateComputation(new string(computation)));
         builder.Append(TranslateDestination(destination));
         builder.Append(TranslateJump(new string(jump)));
-        builder.Append("\n");
+        builder.Append('\n');
         return builder.ToString();
     }
 
-    private string TranslateDestination(ReadOnlySpan<char> destination)
+    private string TranslateComputation(string? computation)
     {
+        computation ??= string.Empty;
+        
+        if (!_computationCodes.TryGetValue(computation, out var computationBinary))
+            throw new TranslationException($"Unknown computation assembly: {computation}");
+
+        return computationBinary;
+    }
+    
+    private static string TranslateDestination(ReadOnlySpan<char> destination)
+    {
+        // checks if letter is at destination portion of the assembly and sets it's char in case it is
         Span<char> bits = new char[3];
         bits.Fill('0');
 
@@ -91,24 +115,14 @@ public sealed class TextTranslator : ITranslator
         
         return bits.ToString();
     }
-
+    
     private string TranslateJump(string? jump)
     {
         jump ??= string.Empty;
         
         if (!_jumpCodes.TryGetValue(jump, out var jumpBinary))
-            throw new Exception("Invalid syntax");
+            throw new TranslationException($"Unknown jump assembly: {jump}");
 
         return jumpBinary;
-    }
-
-    private string TranslateComputation(string? computation)
-    {
-        computation ??= string.Empty;
-        
-        if (!_computationCodes.TryGetValue(computation, out var computationBinary))
-            throw new Exception("Invalid syntax");
-
-        return computationBinary;
     }
 }

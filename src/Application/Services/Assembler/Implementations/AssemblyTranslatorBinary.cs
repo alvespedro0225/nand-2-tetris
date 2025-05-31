@@ -1,8 +1,11 @@
-namespace Assembler.Services.Implementations;
+using Application.Services.Common;
+using Domain.Exceptions;
 
-public sealed class BinaryTranslator : ITranslator
+namespace Application.Services.Assembler.Implementations;
+
+// using ushort because Hack instructions are 16 bit long
+public sealed class AssemblyTranslatorBinary : ITranslator
 {
-    private bool _littleEndian;
     private readonly Dictionary<string, ushort> _computationCodes = new()
     {
         { "0", 0b0101010 },
@@ -46,42 +49,48 @@ public sealed class BinaryTranslator : ITranslator
         { "JLE", 0b110 },
         { "JMP", 0b111 }
     };
-    public BinaryTranslator()
-    {
-        _littleEndian = BitConverter.IsLittleEndian;
-    }
 
-    public byte[] TranslateParsedAssembly(char[][] assembly)
+    /// <summary>
+    /// Translate given assembly into its equivalent binary code.
+    /// </summary>
+    /// <param name="parsedAssembly">An array containing the subsections of the instruction,</param>
+    /// <returns>
+    /// A byte array of length 2.
+    /// </returns>
+    /// <exception cref="ArgumentException">Thrown if <c>parsedAssembly</c> does not have length equal to 1 or 3.</exception>
+    public byte[] TranslateParsedAssembly(char[][] parsedAssembly)
     {
-        return assembly.Length switch
+        return parsedAssembly.Length switch
         {
-            1 => TranslateInstructionA(assembly[0]),
-            3 => TranslateInstructionC(assembly[0], assembly[1], assembly[2]),
-            _ => throw new Exception("Invalid parsing")
+            1 => TranslateInstructionA(parsedAssembly[0]),
+            3 => TranslateInstructionC(parsedAssembly[0], parsedAssembly[1], parsedAssembly[2]),
+            _ => throw new ArgumentException($"Invalid parsing. Array of size {parsedAssembly.Length} is not a valid size.")
         };
     }
     
-    private byte[] TranslateInstructionA(char[] assembly)
+    private static byte[] TranslateInstructionA(char[] addressString)
     {
-        if (!short.TryParse(assembly, out var addressNumber)) // using short because instructions are 16 bit
-            throw new Exception("Invalid instruction");
+        if (!ushort.TryParse(addressString, out var addressNumber))
+            throw new TranslationException("Instruction A must contain a number");
+
+        if (addressNumber > 0x6000)
+            throw new ArgumentException($"Instruction A must contain a number from 0 to {0x6000}");
 
         var instructionBytes = BitConverter.GetBytes(addressNumber);
-        instructionBytes = _littleEndian ? instructionBytes : instructionBytes.Reverse().ToArray();
         return instructionBytes;
     }   
 
     private byte[] TranslateInstructionC(char[] computation, char[] destination, char[] jump)
     {
         ushort instructionBytes = 0b1110000000000000; // base C instruction has bits 0 - 2 set to 1
-        // sets instruction bits 3 - 9 to be equal to computation bytes without affecting the rest
         var computationBits = TranslateComputation(computation);
+        // sets instruction bits 3 - 9 to be equal to computation bytes without affecting the rest
         instructionBytes = (ushort) (computationBits | instructionBytes);
-        // sets bits 10 - 12
         var destinationBits = TranslateDestination(destination);
+        // sets bits 10 - 12
         instructionBytes = (ushort) (destinationBits | instructionBytes);
-        // sets bits 13-15
         var jumpBits = TranslateJump(jump);
+        // sets bits 13-15
         instructionBytes = (ushort)(jumpBits | instructionBytes); 
         return BitConverter.GetBytes(instructionBytes);
     }
@@ -89,15 +98,17 @@ public sealed class BinaryTranslator : ITranslator
     private ushort TranslateComputation(char[] computation)
     {
         if (!_computationCodes.TryGetValue(new string(computation), out var computationBits))
-            throw new Exception("Invalid computation");
+            throw new TranslationException($"Unknown computation assembly: {computation}");
 
         // shifts the bits to positions 3 - 9
         return (ushort)(computationBits << 6); 
     }
 
-    private ushort TranslateDestination(ReadOnlySpan<char> destination)
+    private static ushort TranslateDestination(ReadOnlySpan<char> destination)
     {
+        // checks if letter is at destination portion of the assembly and sets it's bit in case it is
         ushort destinationBits = 0;
+        
         if (destination.ContainsAny('A', 'a'))
             destinationBits = (ushort)(destinationBits | (1 << 2));
 
@@ -114,7 +125,7 @@ public sealed class BinaryTranslator : ITranslator
     private ushort TranslateJump(char[] jump)
     {
         if (!_jumpCodes.TryGetValue(new string(jump), out var jumpBits))
-            throw new Exception("Invalid jump assembly");
+            throw new TranslationException($"Unknown jump assembly: {jump}");
 
         // no need shifting as they are the last ones
         return jumpBits;
