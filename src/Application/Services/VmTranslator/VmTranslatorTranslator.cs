@@ -1,6 +1,6 @@
 using Application.Services.Common;
 
-namespace Application.Services.VM.Translator;
+namespace Application.Services.VmTranslator;
 
 public sealed class VmTranslatorTranslator : ITranslator
 {

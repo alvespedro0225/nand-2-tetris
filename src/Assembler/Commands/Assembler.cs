@@ -1,16 +1,30 @@
-﻿using Application.Services.Common;
+using Application.Services.Assembler;
+using Application.Services.Common;
+using Cocona;
 
-namespace Application.Services.Assembler.Implementations;
+namespace Assembler.Commands;
 
-public sealed class HackAssembler(
-    IParser parser,
-    ITranslator translator,
-    ISymbolTable symbolTable,
-    IFileManager fileManager) : IAssembler
+public static class Assembler
 {
-    private int _variableRegisterCount = 16; // address of the first register used for storing variable values
+    private static string _source = null!;
+    private static int _variableRegisterCount = 16; // address of the first register used for storing variable values
     
-    private async Task FirstPass(string source)
+    public static void AddAssemblerCommands(this CoconaApp app, string source)
+    {
+        _source = source;
+        app.AddCommand(StartProgram);
+    }
+    public static async Task StartProgram(
+        IFileManager fileManager,
+        IParser parser,
+        ITranslator translator,
+        ISymbolTable symbolTable)
+    {
+        await FirstPass(_source, fileManager, symbolTable);
+        await SecondPass(_source, fileManager, parser, symbolTable, translator);
+    }
+    
+    private static async Task FirstPass(string source, IFileManager fileManager, ISymbolTable symbolTable)
     {
         using var reader = fileManager.ReadFile(source);
         var lineCounter = 0;
@@ -32,7 +46,12 @@ public sealed class HackAssembler(
         }
     }
 
-    private async Task SecondPass(string source)
+    private static async Task SecondPass(
+        string source, 
+        IFileManager fileManager, 
+        IParser parser, 
+        ISymbolTable symbolTable,
+        ITranslator translator)
     {
         using var reader = fileManager.ReadFile(source);
         List<byte> output = [];
@@ -73,12 +92,6 @@ public sealed class HackAssembler(
 
     private static bool IsInvalidLine(string? line)
     {
-        return line is null || string.IsNullOrWhiteSpace(line) || line.StartsWith("//");
-    }
-    
-    public async Task Assemble(string source)
-    {
-        await FirstPass(source);
-        await SecondPass(source);
+        return string.IsNullOrWhiteSpace(line) || line.StartsWith('/');
     }
 }

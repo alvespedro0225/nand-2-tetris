@@ -1,6 +1,7 @@
 using Application.Services.Assembler;
 using Application.Services.Assembler.Implementations;
 using Application.Services.Common;
+using Assembler.Commands;
 using Cocona;
 using Infrastructure.Files;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,12 +11,8 @@ builder.Services
     .AddScoped<IParser, AssemblyParser>()
     .AddScoped<ITranslator, AssemblyTranslatorBinary>()
     .AddScoped<ISymbolTable, SymbolTable>()
-    .AddScoped<IFileManager, FileManager>()
-    .AddScoped<IAssembler, HackAssembler>();
+    .AddScoped<IFileManager, FileManager>();
 
 var app = builder.Build();
-app.AddCommand(async ([Argument] string path, IAssembler assembler) =>
-{
-   await assembler.Assemble(path);
-});
+app.AddAssemblerCommands(args[0]);
 app.Run();
