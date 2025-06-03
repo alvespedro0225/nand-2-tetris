@@ -57,11 +57,11 @@ public sealed class HackAssembler(
                 instruction = $"@{symbolValue}";
             }
 
-            var parsedInstruction = parser.ParseAssembly(instruction);
-            output.AddRange(translator.TranslateParsedAssembly(parsedInstruction));
+            var parsedInstruction = parser.Parse(instruction);
+            output.AddRange(translator.Translate(parsedInstruction));
         }
 
-        await fileManager.WriteToFileAsync(source, output.ToArray());
+        await fileManager.WriteToFileAsync(source, output.ToArray(), ".hack");
     }
 
     private static bool IsSymbol(string line)

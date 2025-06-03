@@ -2,7 +2,7 @@ using Application.Services.Assembler;
 using Application.Services.Assembler.Implementations;
 using Application.Services.Common;
 using Cocona;
-using Infrastructure.Services;
+using Infrastructure.Files;
 using Microsoft.Extensions.DependencyInjection;
 
 var builder = CoconaApp.CreateBuilder();
@@ -10,7 +10,7 @@ builder.Services
     .AddScoped<IParser, AssemblyParser>()
     .AddScoped<ITranslator, AssemblyTranslatorBinary>()
     .AddScoped<ISymbolTable, SymbolTable>()
-    .AddScoped<IFileManager, AssemblerFileManager>()
+    .AddScoped<IFileManager, FileManager>()
     .AddScoped<IAssembler, HackAssembler>();
 
 var app = builder.Build();

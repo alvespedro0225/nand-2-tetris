@@ -1,12 +1,10 @@
 using System.Text;
-using Application.Services;
 using Application.Services.Common;
 
-namespace Infrastructure.Services;
+namespace Infrastructure.Files;
 
-public sealed class AssemblerFileManager : IFileManager
+public sealed class FileManager : IFileManager
 {
-    private bool isLittleEndian = BitConverter.IsLittleEndian;
     public StreamReader ReadFile(string path)
     {
         path = ReplaceTilde(path);
@@ -14,10 +12,13 @@ public sealed class AssemblerFileManager : IFileManager
         return file;
     }
 
-    public async Task WriteToFileAsync(string source, byte[] content)
+    public async Task WriteToFileAsync(string source, byte[] content, string? extension = null)
     {
-        source = ReplaceTilde(source);
-        var destination = Path.ChangeExtension(source, ".hack");
+        var destination = ReplaceTilde(source);
+        
+        if (extension is not null)
+            destination = Path.ChangeExtension(destination, extension);
+        
         await using var file = File.OpenWrite(destination);
         await file.WriteAsync(content);
     }

@@ -53,18 +53,18 @@ public sealed class AssemblyTranslatorBinary : ITranslator
     /// <summary>
     /// Translate given assembly into its equivalent binary code.
     /// </summary>
-    /// <param name="parsedAssembly">An array containing the subsections of the instruction,</param>
+    /// <param name="target">An array containing the subsections of the instruction,</param>
     /// <returns>
     /// A byte array of length 2.
     /// </returns>
     /// <exception cref="ArgumentException">Thrown if <c>parsedAssembly</c> does not have length equal to 1 or 3.</exception>
-    public byte[] TranslateParsedAssembly(char[][] parsedAssembly)
+    public byte[] Translate(char[][] target)
     {
-        return parsedAssembly.Length switch
+        return target.Length switch
         {
-            1 => TranslateInstructionA(parsedAssembly[0]),
-            3 => TranslateInstructionC(parsedAssembly[0], parsedAssembly[1], parsedAssembly[2]),
-            _ => throw new ArgumentException($"Invalid parsing. Array of size {parsedAssembly.Length} is not a valid size.")
+            1 => TranslateInstructionA(target[0]),
+            3 => TranslateInstructionC(target[0], target[1], target[2]),
+            _ => throw new ArgumentException($"Invalid parsing. Array of size {target.Length} is not a valid size.")
         };
     }
     
@@ -110,13 +110,13 @@ public sealed class AssemblyTranslatorBinary : ITranslator
         ushort destinationBits = 0;
         
         if (destination.ContainsAny('A', 'a'))
-            destinationBits = (ushort)(destinationBits | (1 << 2));
+            destinationBits |= 1 << 2;
 
         if (destination.ContainsAny('D', 'd'))
-            destinationBits = (ushort)(destinationBits | (1 << 1));
+            destinationBits |= 1 << 1;
         
         if (destination.ContainsAny('M', 'm'))
-            destinationBits = (ushort)(destinationBits | (1 << 0));
+            destinationBits |= 1;
 
         // shifts bits to positions 10-12
         return (ushort)(destinationBits << 3);

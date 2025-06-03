@@ -1,4 +1,4 @@
-namespace Hack;
+namespace Emulator;
 
 public sealed class Hack
 {
@@ -35,7 +35,7 @@ public sealed class Hack
     private short _registerD;
     public int Handle(byte[] buffer, int programCounter)
     {
-        byte[] instructionBytes = [buffer[programCounter + 1 ], buffer[programCounter]];
+        byte[] instructionBytes = [buffer[programCounter], buffer[programCounter + 1]];
         var instruction = BitConverter.ToInt16(instructionBytes, 0);
         var instructionA = instructionBytes[1] >> 7 == 0;
         var nextInstruction = programCounter + 2;
@@ -85,13 +85,15 @@ public sealed class Hack
         if ((instruction >> 5 & 1) == 1)
             _registerA = aluOut;
         
+        // the three if's bellow check if the conditions for jumps are met by checking the jump bits
+        // and alu output
         if ((instruction >> 2 & 1) == 1 && aluOpInt < 0)
             jump = true;
         
         if ((instruction >> 1 & 1) == 1 && aluOpInt == 0)
             jump = true;
         
-        if ((instruction & 1) == 1 && aluOpInt >0)
+        if ((instruction & 1) == 1 && aluOpInt > 0)
             jump = true;
         
         if (jump)

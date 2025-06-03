@@ -7,14 +7,14 @@ public sealed class AssemblyParser : IParser
     /// <summary>
     /// Parses valid Hack assembly code and returns the arrays corresponding to its parts.
     /// </summary>
-    /// <param name="assembly"> The assembly code to be parsed.</param>
+    /// <param name="target"> The assembly code to be parsed.</param>
     /// <returns>
     /// An array of either length 1 in case or an A instruction or 3 in case of a C instruction.
     /// For C instruction the order of the arrays is computation, destination, jump.
     /// </returns>
-    public char[][] ParseAssembly(ReadOnlySpan<char> assembly)
+    public char[][] Parse(ReadOnlySpan<char> target)
     {
-        return assembly[0] == '@' ? [assembly[1..].ToArray()] : ParseInstructionC(assembly);
+        return target[0] == '@' ? [target[1..].ToArray()] : ParseInstructionC(target);
     }
 
     /// <summary>

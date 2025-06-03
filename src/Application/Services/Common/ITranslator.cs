@@ -2,5 +2,5 @@ namespace Application.Services.Common;
 
 public interface ITranslator
 {
-    public byte[] TranslateParsedAssembly(char[][] parsedAssembly);
+    public byte[] Translate(char[][] target);
 }

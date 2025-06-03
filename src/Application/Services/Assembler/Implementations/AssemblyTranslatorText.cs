@@ -52,18 +52,18 @@ public sealed class AssemblyTranslatorText : ITranslator
     /// <summary>
     /// Translate given assembly into its equivalent string's bytes.
     /// </summary>
-    /// <param name="parsedAssembly">An array containing the subsections of the instruction,</param>
+    /// <param name="target">An array containing the subsections of the instruction,</param>
     /// <returns>
     /// A byte array of length 2.
     /// </returns>
     /// <exception cref="ArgumentException">Thrown if <c>parsedAssembly</c> does not have length equal to 1 or 3.</exception>
-    public byte[] TranslateParsedAssembly(char[][] parsedAssembly)
+    public byte[] Translate(char[][] target)
     {
-        return parsedAssembly.Length switch
+        return target.Length switch
         {
-            1 => Encoding.UTF8.GetBytes(TranslateInstructionA(parsedAssembly[0])),
-            3 => Encoding.UTF8.GetBytes(TranslateInstructionC(parsedAssembly[0], parsedAssembly[1], parsedAssembly[2])),
-            _ => throw new ArgumentException($"Invalid parsing. Array of size {parsedAssembly.Length} is not a valid size.")
+            1 => Encoding.UTF8.GetBytes(TranslateInstructionA(target[0])),
+            3 => Encoding.UTF8.GetBytes(TranslateInstructionC(target[0], target[1], target[2])),
+            _ => throw new ArgumentException($"Invalid parsing. Array of size {target.Length} is not a valid size.")
         };
     }
     

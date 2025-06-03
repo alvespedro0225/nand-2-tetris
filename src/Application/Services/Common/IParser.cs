@@ -2,5 +2,5 @@ namespace Application.Services.Common;
 
 public interface IParser
 {
-    public char[][] ParseAssembly(ReadOnlySpan<char> assembly);
+    public char[][] Parse(ReadOnlySpan<char> target);
 }
