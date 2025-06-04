@@ -10,10 +10,9 @@ using Microsoft.Extensions.DependencyInjection;
 var builder = CoconaApp.CreateBuilder();
 builder.Services
     .AddScoped<IParser, AssemblyParser>()
-    .AddScoped<ITranslator, AssemblyTranslatorBinary>()
+    .AddScoped<ITranslator, AssemblyTranslatorText>()
     .AddScoped<ISymbolTable, SymbolTable>()
     .AddScoped<IFileService>(_ => new FileService(args[0]));
-
 var app = builder.Build();
 app.AddAssemblerCommands();
 app.Run();

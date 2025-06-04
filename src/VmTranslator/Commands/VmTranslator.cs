@@ -16,20 +16,22 @@ public static class VmTranslator
         ITranslator translator,
         IFileService fileService)
     {
-        using var file = fileService.ReadFile();
-
+        using var files = fileService.GetFiles();
         List<byte> instructions = [];
         
-        while (!file.EndOfStream)
+        while (files.MoveNext())
         {
-            var line = await file.ReadLineAsync();
+            using var file = files.Current;
+            while (!file.EndOfStream)
+            {
+                var line = await file.ReadLineAsync();
             
-            if (string.IsNullOrEmpty(line) || line.StartsWith('/'))
-                continue;
+                if (string.IsNullOrEmpty(line) || line.StartsWith('/'))
+                    continue;
 
-            var parsedLine = parser.Parse(line);
-
-            instructions.AddRange(translator.Translate(parsedLine, fileService.FileName));
+                var parsedLine = parser.Parse(line);
+                instructions.AddRange(translator.Translate(parsedLine, fileService.FileName));
+            }
         }
 
         await fileService.WriteToFileAsync(instructions.ToArray(), ".asm");

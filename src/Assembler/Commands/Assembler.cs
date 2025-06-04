@@ -19,17 +19,27 @@ public static class Assembler
         ITranslator translator,
         ISymbolTable symbolTable)
     {
-        await FirstPass(fileService, symbolTable);
-        await SecondPass(fileService, parser, symbolTable, translator);
+        var files = fileService.GetFiles();
+
+        while (files.MoveNext())
+        {
+            using var file = files.Current;
+            await FirstPass(file, fileService,symbolTable);
+            file.BaseStream.Position = 0;
+            await SecondPass(file, fileService, parser, symbolTable, translator);
+        }
+        
     }
     
-    private static async Task FirstPass(IFileService fileService, ISymbolTable symbolTable)
+    private static async Task FirstPass(
+        StreamReader file,
+        IFileService fileService,
+        ISymbolTable symbolTable)
     {
-        using var reader = fileService.ReadFile();
         var lineCounter = 0;
-        while (!reader.EndOfStream)
+        while (!file.EndOfStream)
         {
-            var line = await reader.ReadLineAsync();
+            var line = await file.ReadLineAsync();
             line = line?.Trim();
             if (IsInvalidLine(line))
                 continue;
@@ -37,7 +47,7 @@ public static class Assembler
             if (line!.StartsWith('('))
             {
                 // adds the symbol without () to the table
-                symbolTable.AddSymbol(line[1..^1], lineCounter);
+                symbolTable.AddSymbol($"{fileService.FileName}.{line[1..^1]}", lineCounter);
                 continue;
             }
             
@@ -46,16 +56,16 @@ public static class Assembler
     }
 
     private static async Task SecondPass(
+        StreamReader file,
         IFileService fileService, 
         IParser parser, 
         ISymbolTable symbolTable,
         ITranslator translator)
     {
-        using var reader = fileService.ReadFile();
         List<byte> output = [];
-        while (!reader.EndOfStream)
+        while (!file.EndOfStream)
         {
-            var line = await reader.ReadLineAsync();
+            var line = await file.ReadLineAsync();
             line = line?.Trim();
             
             if (IsInvalidLine(line) || line!.StartsWith('(')) // need to skip definitions on second pass
@@ -65,9 +75,9 @@ public static class Assembler
             
             if (IsSymbol(line))
             {
-                if (!symbolTable.TryGetSymbol(line[1..], out var symbolValue))
+                if (!symbolTable.TryGetSymbol($"{fileService.FileName}.{line[1..]}", out var symbolValue))
                 {
-                    symbolTable.AddSymbol(line[1..], _variableRegisterCount);
+                    symbolTable.AddSymbol($"{fileService.FileName}.{line[1..]}", _variableRegisterCount);
                     symbolValue = _variableRegisterCount++;
                 }
                 

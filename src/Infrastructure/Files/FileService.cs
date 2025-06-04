@@ -6,17 +6,33 @@ namespace Infrastructure.Files;
 public sealed class FileService(string path) : IFileService
 {
     public string FileName { get; private set; } = null!;
-    public StreamReader ReadFile()
+    private bool _isDirectory;
+    private string _path = path;
+
+    public IEnumerator<StreamReader> GetFiles()
     {
-        FileName = Path.GetFileNameWithoutExtension(path);
-        path = ReplaceTilde(path);
-        var file = File.OpenText(path);
-        return file;
+        _path = ReplaceTilde(_path);
+        if (Path.EndsInDirectorySeparator(_path))
+        {
+            _isDirectory = true;
+            foreach (var fileName in Directory.GetFiles(_path))
+            {
+                FileName = Path.GetFileNameWithoutExtension(fileName);
+                var file = File.OpenText(fileName);
+                yield return file;
+            }
+        }
+        else
+        {
+            var fileName = ReplaceTilde(_path);
+            var file = File.OpenText(fileName);
+           yield return file;
+        }
     }
 
-    public async Task WriteToFileAsync(byte[] content, string? extension = null)
+    public async Task WriteToFileAsync(byte[] content, string? extension = null, string? destination = null) 
     {
-        var destination = ReplaceTilde(path);
+        destination ??= _isDirectory ? _path + "out" : _path; 
         
         if (extension is not null)
             destination = Path.ChangeExtension(destination, extension);
