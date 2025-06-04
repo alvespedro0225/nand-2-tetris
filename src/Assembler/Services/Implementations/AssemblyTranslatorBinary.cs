@@ -1,7 +1,6 @@
-using Application.Services.Common;
-using Domain.Exceptions;
+using Core.Exceptions;
 
-namespace Application.Services.Assembler.Implementations;
+namespace Assembler.Services.Implementations;
 
 // using ushort because Hack instructions are 16 bit long
 public sealed class AssemblyTranslatorBinary : ITranslator

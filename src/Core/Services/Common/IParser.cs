@@ -1,4 +1,4 @@
-namespace Application.Services.Common;
+namespace Core.Services.Common;
 
 public interface IParser
 {

@@ -1,6 +1,6 @@
-using Application.Services.Common;
+using Core.Services.Common;
 
-namespace Application.Services.Assembler.Implementations;
+namespace Core.Services.Assembler.Implementations;
 
 public sealed class AssemblyParser : IParser
 {

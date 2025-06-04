@@ -1,5 +1,6 @@
-using Application.Services.Common;
+using Core.Services.Common;
 using Cocona;
+using VmTranslator.Services;
 
 namespace VmTranslator.Commands;
 
@@ -31,7 +32,7 @@ public static class VmTranslator
 
             var parsedLine = parser.Parse(line);
 
-            instructions.AddRange(translator.Translate(parsedLine));
+            instructions.AddRange(translator.Translate(parsedLine, fileManager.FileName));
         }
 
         await fileManager.WriteToFileAsync(_source, instructions.ToArray(), ".asm");

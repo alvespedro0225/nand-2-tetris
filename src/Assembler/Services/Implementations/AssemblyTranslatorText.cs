@@ -1,8 +1,7 @@
 using System.Text;
-using Application.Services.Common;
-using Domain.Exceptions;
+using Core.Exceptions;
 
-namespace Application.Services.Assembler.Implementations;
+namespace Assembler.Services.Implementations;
 
 public sealed class AssemblyTranslatorText : ITranslator
 {

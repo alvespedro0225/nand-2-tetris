@@ -1,7 +1,8 @@
-using Application.Services.Assembler;
-using Application.Services.Assembler.Implementations;
-using Application.Services.Common;
+using Core.Services.Assembler.Implementations;
+using Core.Services.Common;
 using Assembler.Commands;
+using Assembler.Services;
+using Assembler.Services.Implementations;
 using Cocona;
 using Infrastructure.Files;
 using Microsoft.Extensions.DependencyInjection;

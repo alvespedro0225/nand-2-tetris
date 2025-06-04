@@ -1,4 +1,4 @@
-namespace Domain.Exceptions;
+namespace Core.Exceptions;
 
 public class TranslationException : Exception
 {

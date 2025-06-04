@@ -1,6 +1,6 @@
-namespace Application.Services.Assembler.Implementations;
+namespace Assembler.Services.Implementations;
 
-public sealed class SymbolTable : ISymbolTable
+internal sealed class SymbolTable : ISymbolTable
 {
     private readonly Dictionary<string, int> _symbolTable = new()
     {

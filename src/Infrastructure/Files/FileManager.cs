@@ -1,12 +1,14 @@
 using System.Text;
-using Application.Services.Common;
+using Core.Services.Common;
 
 namespace Infrastructure.Files;
 
 public sealed class FileManager : IFileManager
 {
+    public string FileName { get; private set; } = null!;
     public StreamReader ReadFile(string path)
     {
+        FileName = Path.GetFileNameWithoutExtension(path);
         path = ReplaceTilde(path);
         var file = File.OpenText(path);
         return file;

@@ -1,6 +1,6 @@
-using Application.Services.Common;
+using Core.Services.Common;
 
-namespace Application.Services.VmTranslator;
+namespace Core.Services.VmTranslator;
 
 public sealed class VmTranslatorParser : IParser
 {

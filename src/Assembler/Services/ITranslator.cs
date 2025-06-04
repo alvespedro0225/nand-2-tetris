@@ -1,4 +1,4 @@
-namespace Application.Services.Common;
+namespace Assembler.Services;
 
 public interface ITranslator
 {

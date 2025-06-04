@@ -1,6 +1,6 @@
-namespace Application.Services.Assembler;
+namespace Assembler.Services;
 
-public interface ISymbolTable
+internal interface ISymbolTable
 {
     public bool TryGetSymbol(string symbol, out int symbolValue);
     public bool TryAddSymbol(string symbol, int symbolValue);

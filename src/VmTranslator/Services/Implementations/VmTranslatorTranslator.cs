@@ -1,8 +1,7 @@
 using System.Text;
-using Application.Services.Common;
-using Domain.Exceptions;
+using Core.Exceptions;
 
-namespace Application.Services.VmTranslator;
+namespace VmTranslator.Services.Implementations;
 
 public sealed class VmTranslatorTranslator : ITranslator
 {
@@ -16,17 +15,15 @@ public sealed class VmTranslatorTranslator : ITranslator
                                       @SP
                                       M=M-1
                                       A=M    
-                                             
                                       """;
 
     private const string EndOperation = """
                                         // incremets sp
                                         @SP
                                         M=M+1
-                                        
                                         """;
 
-    public byte[] Translate(char[][] target)
+    public byte[] Translate(char[][] target, string fileName)
     {
         var instruction = new string(target[0]) switch
         {
@@ -39,8 +36,14 @@ public sealed class VmTranslatorTranslator : ITranslator
             "and" => TranslateBitwiseComparison('&'),
             "or" => TranslateBitwiseComparison('|'),
             "not" => TranslateNot(),
-            "pop" => TranslatePop(GetToAddress(new string(target[1]), new string(target[2]))),
-            "push" => TranslatePush(GetToAddress(new string(target[1]), new string(target[2]))),
+            "pop" => TranslatePop(GetToAddress(
+                new string(target[1]),
+                new string(target[2]),
+                fileName)),
+            "push" => TranslatePush(GetToAddress(
+                new string(target[1]),
+                new string(target[2]), 
+                fileName)),
             _ => throw new TranslationException($"Invalid instruction: {target[0]}")
         };
 
@@ -142,7 +145,7 @@ public sealed class VmTranslatorTranslator : ITranslator
     /// <param name="segment">Name of the register</param>
     /// <param name="offset">Address offset</param>
     /// <returns>The assembly equivalent to the segment address</returns>
-    private static string GetToAddress(string segment, string offset)
+    private static string GetToAddress(string segment, string offset, string fileName)
     {
         return new string(segment) switch
         {
@@ -151,11 +154,11 @@ public sealed class VmTranslatorTranslator : ITranslator
             "this" => GetDefaultSegment("THIS"),
             "that" => GetDefaultSegment("THAT"),
             "temp" => $"@{5+int.Parse(offset)}",
-            "constant" => $"c@{offset}\n",
-            "static" => $"@TEMP.{offset}\n",
+            "constant" => $"c@{offset}",
+            "static" => $"@{fileName}.{offset}",
             "pointer" => offset == "0" 
-                ? "@THIS\n"
-                : "@THAT\n",
+                ? "@THIS"
+                : "@THAT",
             _ => throw new TranslationException($"Invalid segment: {segment}")
         };
 

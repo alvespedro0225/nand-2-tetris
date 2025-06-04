@@ -1,5 +1,6 @@
-using Application.Services.Assembler;
-using Application.Services.Common;
+using Assembler.Services;
+using Core.Services.Assembler;
+using Core.Services.Common;
 using Cocona;
 
 namespace Assembler.Commands;
@@ -14,7 +15,8 @@ public static class Assembler
         _source = source;
         app.AddCommand(StartProgram);
     }
-    public static async Task StartProgram(
+
+    private static async Task StartProgram(
         IFileManager fileManager,
         IParser parser,
         ITranslator translator,

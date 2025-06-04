@@ -4,9 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Emulator", "src\Emulator\Em
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembler", "src\Assembler\Assembler.csproj", "{8A1071D4-32D5-43CE-AB4F-0EDC4B627CAF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "src\Application\Application.csproj", "{265D3776-1FD5-4824-88F1-DEF54809FB92}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "src\Domain\Domain.csproj", "{0966B180-58B0-43B3-B1F0-29F8CE7D6B6B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "src\Core\Core.csproj", "{265D3776-1FD5-4824-88F1-DEF54809FB92}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "src\Infrastructure\Infrastructure.csproj", "{B898C018-9F0D-445E-88C5-EF6AEB636C0F}"
 EndProject
@@ -30,10 +28,6 @@ Global
 		{265D3776-1FD5-4824-88F1-DEF54809FB92}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{265D3776-1FD5-4824-88F1-DEF54809FB92}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{265D3776-1FD5-4824-88F1-DEF54809FB92}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0966B180-58B0-43B3-B1F0-29F8CE7D6B6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0966B180-58B0-43B3-B1F0-29F8CE7D6B6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0966B180-58B0-43B3-B1F0-29F8CE7D6B6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0966B180-58B0-43B3-B1F0-29F8CE7D6B6B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B898C018-9F0D-445E-88C5-EF6AEB636C0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B898C018-9F0D-445E-88C5-EF6AEB636C0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B898C018-9F0D-445E-88C5-EF6AEB636C0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
