@@ -3,10 +3,10 @@ using Core.Services.Common;
 
 namespace Infrastructure.Files;
 
-public sealed class FileManager : IFileManager
+public sealed class FileService(string path) : IFileService
 {
     public string FileName { get; private set; } = null!;
-    public StreamReader ReadFile(string path)
+    public StreamReader ReadFile()
     {
         FileName = Path.GetFileNameWithoutExtension(path);
         path = ReplaceTilde(path);
@@ -14,9 +14,9 @@ public sealed class FileManager : IFileManager
         return file;
     }
 
-    public async Task WriteToFileAsync(string source, byte[] content, string? extension = null)
+    public async Task WriteToFileAsync(byte[] content, string? extension = null)
     {
-        var destination = ReplaceTilde(source);
+        var destination = ReplaceTilde(path);
         
         if (extension is not null)
             destination = Path.ChangeExtension(destination, extension);

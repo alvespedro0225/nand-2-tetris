@@ -11,8 +11,8 @@ var builder = CoconaApp.CreateBuilder();
 builder.Services
     .AddScoped<IParser, VmTranslatorParser>()
     .AddScoped<ITranslator, VmTranslatorTranslator>()
-    .AddScoped<IFileManager, FileManager>();
+    .AddScoped<IFileService>(_ => new FileService(args[0]));
 
 var app = builder.Build();
-app.AddVmTranslatorCommands(args[0]);
+app.AddVmTranslatorCommands();
 app.Run();

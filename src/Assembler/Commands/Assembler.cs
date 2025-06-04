@@ -1,34 +1,31 @@
 using Assembler.Services;
-using Core.Services.Assembler;
-using Core.Services.Common;
 using Cocona;
+using Core.Services.Common;
 
 namespace Assembler.Commands;
 
 public static class Assembler
 {
-    private static string _source = null!;
     private static int _variableRegisterCount = 16; // address of the first register used for storing variable values
     
-    public static void AddAssemblerCommands(this CoconaApp app, string source)
+    public static void AddAssemblerCommands(this CoconaApp app)
     {
-        _source = source;
         app.AddCommand(StartProgram);
     }
 
     private static async Task StartProgram(
-        IFileManager fileManager,
+        IFileService fileService,
         IParser parser,
         ITranslator translator,
         ISymbolTable symbolTable)
     {
-        await FirstPass(_source, fileManager, symbolTable);
-        await SecondPass(_source, fileManager, parser, symbolTable, translator);
+        await FirstPass(fileService, symbolTable);
+        await SecondPass(fileService, parser, symbolTable, translator);
     }
     
-    private static async Task FirstPass(string source, IFileManager fileManager, ISymbolTable symbolTable)
+    private static async Task FirstPass(IFileService fileService, ISymbolTable symbolTable)
     {
-        using var reader = fileManager.ReadFile(source);
+        using var reader = fileService.ReadFile();
         var lineCounter = 0;
         while (!reader.EndOfStream)
         {
@@ -49,13 +46,12 @@ public static class Assembler
     }
 
     private static async Task SecondPass(
-        string source, 
-        IFileManager fileManager, 
+        IFileService fileService, 
         IParser parser, 
         ISymbolTable symbolTable,
         ITranslator translator)
     {
-        using var reader = fileManager.ReadFile(source);
+        using var reader = fileService.ReadFile();
         List<byte> output = [];
         while (!reader.EndOfStream)
         {
@@ -82,7 +78,7 @@ public static class Assembler
             output.AddRange(translator.Translate(parsedInstruction));
         }
 
-        await fileManager.WriteToFileAsync(source, output.ToArray(), ".hack");
+        await fileService.WriteToFileAsync(output.ToArray(), ".hack");
     }
 
     private static bool IsSymbol(string line)

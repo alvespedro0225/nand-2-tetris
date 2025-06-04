@@ -6,20 +6,17 @@ namespace VmTranslator.Commands;
 
 public static class VmTranslator
 {
-    private static string _source = null!;
-    
-    public static void AddVmTranslatorCommands(this CoconaApp app, string source)
+    public static void AddVmTranslatorCommands(this CoconaApp app)
     {
-        _source = source;   
         app.AddCommand(TranslateVmCode);
     }
 
     private static async Task TranslateVmCode(
         IParser parser,
         ITranslator translator,
-        IFileManager fileManager)
+        IFileService fileService)
     {
-        using var file = fileManager.ReadFile(_source);
+        using var file = fileService.ReadFile();
 
         List<byte> instructions = [];
         
@@ -32,9 +29,9 @@ public static class VmTranslator
 
             var parsedLine = parser.Parse(line);
 
-            instructions.AddRange(translator.Translate(parsedLine, fileManager.FileName));
+            instructions.AddRange(translator.Translate(parsedLine, fileService.FileName));
         }
 
-        await fileManager.WriteToFileAsync(_source, instructions.ToArray(), ".asm");
+        await fileService.WriteToFileAsync(instructions.ToArray(), ".asm");
     }
 }

@@ -12,8 +12,8 @@ builder.Services
     .AddScoped<IParser, AssemblyParser>()
     .AddScoped<ITranslator, AssemblyTranslatorBinary>()
     .AddScoped<ISymbolTable, SymbolTable>()
-    .AddScoped<IFileManager, FileManager>();
+    .AddScoped<IFileService>(_ => new FileService(args[0]));
 
 var app = builder.Build();
-app.AddAssemblerCommands(args[0]);
+app.AddAssemblerCommands();
 app.Run();
